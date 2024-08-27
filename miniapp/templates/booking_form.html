@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Form - Wattz Car Rental</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Complete Your Booking</h1>
+    <form id="booking-form">
+        <input type="hidden" id="car-id" name="car_id" value="{{ car.id }}">
+        
+        <label for="pickup-date">Pickup Date:</label>
+        <input type="date" id="pickup-date" name="pickup_date" required>
+        
+        <label for="return-date">Return Date:</label>
+        <input type="date" id="return-date" name="return_date" required>
+        
+        <label for="pickup-location">Pickup Location:</label>
+        <input type="text" id="pickup-location" name="pickup_location" required>
+        
+        <label for="return-location">Return Location:</label>
+        <input type="text" id="return-location" name="return_location" required>
+        
+        <h2>Selected Car</h2>
+        <p>{{ car.brand }} {{ car.model }}</p>
+        <p>Daily Rate: ${{ car.daily_rate }}</p>
+        
+        <button type="submit">Confirm Booking</button>
+    </form>
+
+    <script>
+        document.getElementById('booking-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const bookingData = Object.fromEntries(formData.entries());
+            
+            fetch('/api/booking/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bookingData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.Telegram.WebApp.sendData(JSON.stringify({
+                        action: 'booking_created',
+                        booking_id: data.booking_id
+                    }));
+                } else {
+                    alert('Error creating booking: ' + data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    </script>
+</body>
+</html>

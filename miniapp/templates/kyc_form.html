@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wattz Car Rental KYC</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #4a4a4a;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+        }
+        input, select {
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #006699;
+        }
+        .photo-upload {
+            margin-bottom: 15px;
+        }
+        .photo-preview {
+            max-width: 300px;
+            max-height: 200px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wattz Car Rental KYC</h1>
+    <form id="kycForm">
+        <label for="fullName">Full Name:</label>
+        <input type="text" id="fullName" name="fullName" required>
+        
+        <label for="dateOfBirth">Date of Birth:</label>
+        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+        
+        <label for="nationality">Nationality:</label>
+        <input type="text" id="nationality" name="nationality" required>
+        
+        <label for="idType">ID Type:</label>
+        <select id="idType" name="idType" required>
+            <option value="passport">Passport</option>
+            <option value="drivingLicense">Driving License</option>
+            <option value="nationalId">National ID</option>
+        </select>
+        
+        <label for="idNumber">ID Number:</label>
+        <input type="text" id="idNumber" name="idNumber" required>
+        
+        <div class="photo-upload">
+            <label for="idPhoto">ID Photo:</label>
+            <input type="file" id="idPhoto" name="idPhoto" accept="image/*" required>
+            <img id="idPhotoPreview" class="photo-preview" src="" alt="ID Photo Preview">
+        </div>
+        
+        <div class="photo-upload">
+            <label for="drivingLicense">Driving License Photo:</label>
+            <input type="file" id="drivingLicense" name="drivingLicense" accept="image/*" required>
+            <img id="drivingLicensePreview" class="photo-preview" src="" alt="Driving License Preview">
+        </div>
+        
+        <div class="photo-upload">
+            <label for="selfie">Selfie with ID:</label>
+            <input type="file" id="selfie" name="selfie" accept="image/*" required>
+            <img id="selfiePreview" class="photo-preview" src="" alt="Selfie Preview">
+        </div>
+        
+        <button type="submit">Submit KYC</button>
+    </form>
+
+    <script>
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onloadend = function () {
+                preview.src = reader.result;
+            }
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "";
+            }
+        }
+
+        document.getElementById('idPhoto').addEventListener('change', function() {
+            previewImage(this, 'idPhotoPreview');
+        });
+
+        document.getElementById('drivingLicense').addEventListener('change', function() {
+            previewImage(this, 'drivingLicensePreview');
+        });
+
+        document.getElementById('selfie').addEventListener('change', function() {
+            previewImage(this, 'selfiePreview');
+        });
+
+        document.getElementById('kycForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            
+            fetch('/api/kyc', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('KYC submitted successfully!');
+                    window.Telegram.WebApp.close();
+                } else {
+                    alert('Error submitting KYC. Please try again.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+    </script>
+</body>
+</html>

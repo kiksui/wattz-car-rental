@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Selection - Wattz Car Rental</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Select Your Car</h1>
+    <div id="car-list">
+        {% for car in cars %}
+        <div class="car-item">
+            <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.model }}">
+            <h2>{{ car.brand }} {{ car.model }}</h2>
+            <p>Type: {{ car.type }}</p>
+            <p>Daily Rate: ${{ car.daily_rate }}</p>
+            <button onclick="selectCar('{{ car.id }}')">Select</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function selectCar(carId) {
+            window.Telegram.WebApp.sendData(JSON.stringify({
+                action: 'select_car',
+                car_id: carId
+            }));
+        }
+    </script>
+</body>
+</html>
